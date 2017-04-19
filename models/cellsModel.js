@@ -51,7 +51,6 @@ function uncover(id, x, y) {
     var result = board
         .uncoverDeep(cell.field, cell.point)
         .map((point) => createUpdate(cell.field, point));
-console.log(result);
     repository.save(cell.field);
     return result;
 }
@@ -63,8 +62,8 @@ function toCell(id, x, y) {
     }
 
     var point = {
-        x,
-        y
+        x : parseInt(x),
+        y : parseInt(y)
     };
 
     if (!geo.isInRange(point, field.size)) {

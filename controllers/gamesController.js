@@ -26,7 +26,6 @@ function getGame(req, res, next) {
 
 function postGame(req, res, next) {
     var level = req.body.level ? req.body.level : req.params.level;
-    console.log(req.body);
     var game = model.create(level);
     res.status(200).json(game);
 }

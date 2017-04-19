@@ -56,7 +56,8 @@
         }
 
         function flag(cell) {
-            post('/flag', getPoint(cell));
+          var point = getPoint(cell);
+          post('/api/games/' + id + '/cells/' + point.x + '.' + point.y + '/flag');
         }
 
         function getPoint(cell) {
@@ -74,17 +75,11 @@
                 .then((events) => events.forEach(onUpdate));
         }
 
-        function post(url, point) {
+        function post(url) {
             fetch(new Request(url, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(point)
-                }))
+                    method: 'PUT'}))
                 .then((res) => res.json())
-                .then((events) => events.forEach(onUpdate));
+                .then(onUpdate);
         }
     </script>
 </head>
