@@ -2,26 +2,106 @@
 <html node-mines>
 
 <head>
-  <script>
-      function post(button) {
-          var level = button.value;
-          var url = '/api/games';
-          fetch(new Request(url, {
-                  method: 'POST',
-                  headers: {
-                      'Accept': 'application/json',
-                      'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({level})
-              }))
-              .then((res) => res.json())
-              .then((game) => window.location.replace('/game.html?id='+game.id));
-      }
-  </script>
+    <style>
+        .minefield {
+            line-height: 0;
+            border-spacing: 0;
+            float: left;
+        }
+
+        .minefield td {
+            padding: 0
+        }
+    </style>
+
+    <script>
+        var id = new URLSearchParams(window.location.search).get("id");
+        var gameUrl = `/api/games/${id}`;
+        var cellsUrl = `${gameUrl}/cells`;
+
+        function create(button) {
+            var level = button.value;
+            var url = `/api/games?level=${level}`;
+            fetch(url, {
+                    method: 'POST'
+                })
+                .then((res) => res.json())
+                .then((game) => window.location.replace(`/game.html?id=${game.id}`));
+        }
+
+        fetch(gameUrl)
+            .then((res) => res.json())
+            .then((game) => createTable(game.size))
+            .then(
+                fetch(cellsUrl)
+                .then((res) => res.json())
+                .then((updates) => updates.forEach(onUpdate)));
+
+        function createTable(size) {
+            var table = document.getElementById("main");
+            var row = table.rows[0];
+            var cell = row.cells[0];
+            for (var i = 1; i < size.x; i++) {
+                row.appendChild(cell.cloneNode(true));
+            }
+            for (var j = 1; j < size.y; j++) {
+                table.appendChild(row.cloneNode(true));
+            }
+        }
+
+        function uncover(cell) {
+            var point = getPoint(cell);
+            var url = `${cellsUrl}/${point.x}.${point.y}/cover`;
+            fetch(url, {
+                    method: 'DELETE'
+                })
+                .then((res) => res.json())
+                .then((updates) => updates.forEach(onUpdate));
+        }
+
+        function flag(cell) {
+            var point = getPoint(cell);
+            var url = `${cellsUrl}/${point.x}.${point.y}/flag`;
+            fetch(url, {
+                    method: 'PUT'
+                })
+                .then((res) => res.json())
+                .then(onUpdate)
+        }
+
+        function onUpdate(update, id) {
+            document
+                .getElementById("main")
+                .rows[update.point.y]
+                .cells[update.point.x]
+                .getElementsByTagName("img")[0]
+                .setAttribute("src", `img/${update.value}.png`);
+        }
+
+        function getPoint(cell) {
+            return {
+                x: cell.cellIndex,
+                y: cell.parentNode.rowIndex
+            };
+        }
+    </script>
 </head>
 
 <body>
-    <input type="button" value="Beginner" onclick="post(this);"></input>
-    <input type="button" value="Intermediate" onclick="post(this);"></input>
-    <input type="button" value="Expert" onclick="post(this);"></input>
+    <div>
+        <input type="button" value="Beginner" onclick="create(this);"></input>
+        <input type="button" value="Intermediate" onclick="create(this);"></input>
+        <input type="button" value="Expert" onclick="create(this);"></input>
+    </div>
+    <div>
+        <table id="main" class="minefield">
+            <tr>
+                <td onclick="uncover(this);" oncontextmenu="flag(this);return false;">
+                    <img src="img/covered.png" />
+                </td>
+            </tr>
+        </table>
+        <div>
+</body>
+
 </html>
