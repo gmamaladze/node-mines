@@ -10,7 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "body-parser": "^1.17.1",
-    "express": "^4.15.2"
+    "express": "^4.15.2",
+    "shortid": "^2.2.8"
   },
   "devDependencies": {
     "chai": "^3.5.0",

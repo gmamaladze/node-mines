@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html node-mines>
+
+<head>
+    <style>
+        .minefield {
+            line-height: 0;
+            border-spacing: 0;
+            float: left;
+        }
+
+        .minefield td {
+            padding: 0
+        }
+    </style>
+
+    <script>
+        var id = new URLSearchParams(window.location.search).get('id');
+
+        function onUpdate(update, id) {
+            document
+                .getElementById("main")
+                .rows[update.point.y]
+                .cells[update.point.x]
+                .innerHTML = getImg(update.value);
+        }
+
+        fetch('/api/games/' + id)
+            .then((res) => res.json())
+            .then((json) => json.size)
+            .then(createTable)
+            .then(
+                fetch('/api/games/' + id + '/cells')
+                .then((res) => res.json())
+                .then((events) => events.forEach(onUpdate)));
+
+        function createTable(size) {
+            var table = document.getElementById("main");
+            var row = table.rows[0];
+            var cell = row.cells[0];
+            for (var i = 0; i < size.x; i++) {
+                row.appendChild(cell.cloneNode(true));
+            }
+            for (var j = 0; j < size.y; j++) {
+                table.appendChild(row.cloneNode(true));
+            }
+        }
+
+        function getImg(cell) {
+            return '<img src="img/' + cell + '.png"/>';
+        }
+
+        function uncover(cell) {
+            var point = getPoint(cell);
+            del('/api/games/' + id + '/cells/' + point.x + '.' + point.y + '/cover');
+        }
+
+        function flag(cell) {
+            post('/flag', getPoint(cell));
+        }
+
+        function getPoint(cell) {
+            return {
+                x: cell.cellIndex,
+                y: cell.parentNode.rowIndex
+            };
+        }
+
+        function del(url) {
+            fetch(new Request(url, {
+                    method: 'DELETE'
+                }))
+                .then((res) => res.json())
+                .then((events) => events.forEach(onUpdate));
+        }
+
+        function post(url, point) {
+            fetch(new Request(url, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(point)
+                }))
+                .then((res) => res.json())
+                .then((events) => events.forEach(onUpdate));
+        }
+    </script>
+</head>
+
+<body>
+    <table id="main" class="minefield">
+        <tr>
+            <td onclick="uncover(this);" oncontextmenu="flag(this);return false;"></td>
+        </tr>
+    </table>
+</body>
+
+</html>
