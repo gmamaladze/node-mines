@@ -9,8 +9,6 @@ var game = require('./game.js');
 var app = express();
 app.use(bodyParser.json());
 
-var server = http.createServer(app);
-
 var size = {
     x: 9,
     y: 9
@@ -40,4 +38,7 @@ app.post('/flag', function(req, res) {
     res.status(201).json(result);
 });
 
-server.listen(3000);
+var port = process.env.PORT || 8080;
+app.listen(port, function() {
+    console.log('node-mines is running on http://localhost:' + port);
+});
