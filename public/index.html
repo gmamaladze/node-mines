@@ -2,102 +2,36 @@
 <html node-mines>
 
 <head>
-    <style>
-        .minefield {
-            line-height: 0;
-            border-spacing: 0;
-            float: left;
-        }
-
-        .minefield td {
-            padding: 0
-        }
-    </style>
-
-    <script>
-        var id = new URLSearchParams(window.location.search).get("id");
-        var gameUrl = `/api/games/${id}`;
-        var cellsUrl = `${gameUrl}/cells`;
-
-        function create(button) {
-            var level = button.value;
-            var url = `/api/games?level=${level}`;
-            fetch(url, {
-                    method: 'POST'
-                })
-                .then((res) => res.json())
-                .then((game) => window.location.replace(`/game.html?id=${game.id}`));
-        }
-
-        fetch(gameUrl)
-            .then((res) => res.json())
-            .then((game) => createTable(game.size))
-            .then(
-                fetch(cellsUrl)
-                .then((res) => res.json())
-                .then((updates) => updates.forEach(onUpdate)));
-
-        function createTable(size) {
-            var table = document.getElementById("main");
-            var row = table.rows[0];
-            var cell = row.cells[0];
-            for (var i = 1; i < size.x; i++) {
-                row.appendChild(cell.cloneNode(true));
-            }
-            for (var j = 1; j < size.y; j++) {
-                table.appendChild(row.cloneNode(true));
-            }
-        }
-
-        function uncover(cell) {
-            var point = getPoint(cell);
-            var url = `${cellsUrl}/${point.x}.${point.y}/cover`;
-            fetch(url, {
-                    method: 'DELETE'
-                })
-                .then((res) => res.json())
-                .then((updates) => updates.forEach(onUpdate));
-        }
-
-        function flag(cell) {
-            var point = getPoint(cell);
-            var url = `${cellsUrl}/${point.x}.${point.y}/flag`;
-            fetch(url, {
-                    method: 'PUT'
-                })
-                .then((res) => res.json())
-                .then(onUpdate)
-        }
-
-        function onUpdate(update, id) {
-            document
-                .getElementById("main")
-                .rows[update.point.y]
-                .cells[update.point.x]
-                .getElementsByTagName("img")[0]
-                .setAttribute("src", `img/${update.value}.png`);
-        }
-
-        function getPoint(cell) {
-            return {
-                x: cell.cellIndex,
-                y: cell.parentNode.rowIndex
-            };
-        }
-    </script>
+   <link rel="stylesheet" href="css/main.css">
+   <script src="js/main.js"></script>
 </head>
 
 <body>
-    <div>
-        <input type="button" value="Beginner" onclick="create(this);"></input>
-        <input type="button" value="Intermediate" onclick="create(this);"></input>
-        <input type="button" value="Expert" onclick="create(this);"></input>
-    </div>
-    <div>
-        <table id="main" class="minefield">
+    <div class="frame">
+        <table>
             <tr>
-                <td onclick="uncover(this);" oncontextmenu="flag(this);return false;">
-                    <img src="img/covered.png" />
+                <td>
+                    <select id="level" onchange="startNew(this.value);">
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Expert">Expert</option>
+                  </select>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <img id="face" src="img/in-progress.png" onclick="startNew(document.getElementById('level').value);"></img>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <table id="main" class="minefield">
+                        <tr>
+                            <td onclick="cellclick(this);" oncontextmenu="flag(this);return false;">
+                                <img src="img/covered.png" />
+                            </td>
+                        </tr>
+                    </table>
                 </td>
             </tr>
         </table>

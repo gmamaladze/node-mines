@@ -45,13 +45,23 @@ function triggerFlag(id, x, y) {
 
 function uncover(id, x, y) {
     var cell = toCell(id, x, y);
+    var field = cell.field;
+    var point = cell.point;
+
     if (!cell) {
         return;
     }
     var result = board
-        .uncoverDeep(cell.field, cell.point)
-        .map((point) => createUpdate(cell.field, point));
-    repository.save(cell.field);
+        .uncoverDeep(field, point)
+        .map((point) => createUpdate(field, point));
+
+    field.state = board.getGameState(field);
+    if (field.state === 'loose') {
+        field.mines.forEach((p) => board.uncoverDeep(field, p));
+        result = result.concat(field.mines.map((point) => createUpdate(field, point)));
+    }
+
+    repository.save(field);
     return result;
 }
 
@@ -62,8 +72,8 @@ function toCell(id, x, y) {
     }
 
     var point = {
-        x : parseInt(x),
-        y : parseInt(y)
+        x: parseInt(x),
+        y: parseInt(y)
     };
 
     if (!geo.isInRange(point, field.size)) {

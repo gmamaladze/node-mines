@@ -9,7 +9,8 @@ var getKey = hashmap.getKey;
 module.exports = {
     uncoverDeep,
     hasMineAt,
-    getWarningsAt
+    getWarningsAt,
+    getGameState
 };
 
 
@@ -41,4 +42,26 @@ function getWarningsAt(field, point) {
 
 function isEmptyAt(field, point) {
     return !hasMineAt(field, point) && getWarningsAt(field, point) === 0;
+}
+
+function getGameState(field) {
+    if (field.state !== 'in-progress') {
+        return field.state;
+    }
+
+    var anyMineUncovered =
+        field
+        .mines
+        .filter((p) => !covers.isCovered(field.covers, p))
+        .length > 0;
+
+    if (anyMineUncovered) {
+        return 'loose';
+    }
+
+    var areOnlyMinesCovered = (covers.count(field.covers) === field.mines.length);
+    if (areOnlyMinesCovered) {
+        return 'win';
+    }
+    return 'in-progress';
 }

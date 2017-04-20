@@ -1,8 +1,18 @@
+.frame table {
+    border-style: groove;
+    border-width: 4px;
+    border-color: lightgray;
+    background-color: lightgray;
+    text-align: center;
+    margin: 0 auto;
+}
+
 .minefield {
+    border-style: none;
     line-height: 0;
     border-spacing: 0;
 }
 
 .minefield td {
-    padding: 0
+    padding: 0;
 }

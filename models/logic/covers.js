@@ -12,7 +12,7 @@ module.exports = {
     uncoverRange,
     isCovered,
     hasFlag,
-    getUnflaggedCount
+    count
 };
 
 function create(size) {
@@ -46,6 +46,6 @@ function hasFlag(covers, point) {
     return covers[getKey(point)] === true;
 }
 
-function getUnflaggedCount(covers) {
-    return covers.filter((f) => f !== true).length;
+function count(covers, point) {
+  return Object.keys(covers).length;
 }
