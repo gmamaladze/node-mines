@@ -11,4 +11,4 @@ app.use('/', express.static('public'));
 app.use('/api/games', games);
 
 var port = process.env.PORT || 8080;
-app.listen(port);
+app.listen(port, () => console.log(`Listening on http://localhost:${port}`));
