@@ -19,10 +19,9 @@ function loadExisting(id) {
             createTable(game.size);
             document.getElementById("level").value = game.level;
         })
-        .then(
-            fetch(cellsUrl)
-            .then((res) => res.json())
-            .then((updates) => updates.forEach(onUpdate)));
+        .then(()=>fetch(cellsUrl))
+        .then((res) => res.json())
+        .then((updates) => updates.forEach(onUpdate));
 }
 
 function startNew(level) {
